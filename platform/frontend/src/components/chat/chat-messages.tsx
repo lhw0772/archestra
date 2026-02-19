@@ -37,6 +37,7 @@ import {
 import { hasThinkingTags, parseThinkingTags } from "@/lib/parse-thinking";
 import { cn } from "@/lib/utils";
 import { AuthRequiredTool } from "./auth-required-tool";
+import MCPUIRenderer from "./MCPUIRenderer";
 import { extractFileAttachments, hasTextPart } from "./chat-messages.utils";
 import { EditableAssistantMessage } from "./editable-assistant-message";
 import { EditableUserMessage } from "./editable-user-message";
@@ -743,6 +744,23 @@ export function ChatMessages({
                           </div>
                         </div>
                       );
+                    }
+
+                    case "resource": {
+                      const resource = part as any;
+                      const isMCPUI = resource.metadata?.some((m: any) => m.key.startsWith('mcpui.dev/ui-'));
+
+                      if (isMCPUI) {
+                        return (
+                          <MCPUIRenderer
+                            key={partKey}
+                            resourceUri={resource.uri}
+                            renderData={resource.content}
+                            onLink={(url) => window.open(url, '_blank')}
+                          />
+                        );
+                      }
+                      return null;
                     }
 
                     case "dynamic-tool": {
